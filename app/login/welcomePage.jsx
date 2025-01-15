@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, BackHandler } from 'react-native';
 import { useRouter } from 'expo-router';
 import colors from '../../constants/color';
 
@@ -15,9 +15,18 @@ export default function WelcomePage() {
       useNativeDriver: true,
     }).start();
     
-    // Reset animation when navigating back
+    // Handle back button press
+    const backAction = () => {
+      // Exit the app when back button is pressed
+      BackHandler.exitApp();  // Exit the app
+      return true;  // Prevent default back action
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    // Cleanup event listener on unmount
     return () => {
-      slideAnim.setValue(-500); // Reset the animation when the page unmounts
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
     };
   }, [slideAnim]);
 
@@ -66,27 +75,29 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: colors.text,
+    color: colors.secondary,
     textAlign: "center",
-    fontWeight: "bold",
+    fontFamily:'bold',
     marginBottom: 20,
+    
   },
   subtitle: {
     fontSize: 16,
     color: colors.text,
     textAlign: "center",
+    fontFamily:'regular',
     marginBottom: 40,
     lineHeight: 22,
   },
   getStartedButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
   },
   getStartedText: {
-    color: colors.background,
+    color: colors.text,
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: 'bold',
   },
 });
