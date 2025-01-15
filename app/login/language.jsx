@@ -83,13 +83,14 @@ const styles = StyleSheet.create({
     color: colors.lightBackground,
     textAlign: "center",
     marginBottom: 10,
-    fontWeight: "bold",
+    fontFamily: "bold",
   },
   subtitleText: {
     fontSize: 16,
     color: colors.lightPurple,
     textAlign: "center",
     marginBottom: 20,
+    fontFamily:'regular',
   },
   languageBox: {
     flexDirection: "row",
@@ -103,6 +104,7 @@ const styles = StyleSheet.create({
   languageText: {
     color: colors.lightBackground,
     fontSize: 16,
+    fontFamily:'light',
   },
   arrowMark: {
     color: colors.lightPurple,
@@ -124,21 +126,25 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightPurple,
-  },
+    },
+
   modalOptionText: {
     color: colors.lightBackground,
     fontSize: 16,
+    fontFamily:'regural',
   },
   nextButton: {
     alignSelf: "flex-end",
     backgroundColor: colors.darkPurple,
     padding: 15,
     borderRadius: 10,
+    
   },
   nextButtonText: {
     color: colors.lightBackground,
     fontSize: 18,
     fontWeight: "bold",
+    
   },
 });
 
