@@ -1,9 +1,8 @@
 const colors = {
-  lightPurple: "#C8B1E4",
-  mediumPurple: "#9B72CF",
-  darkPurple: "#532B88",
-  darkerPurple: "#2F184B",
-  lightBackground: "#F4EFFA",
+  primary: "#6A0DAD", // Primary color
+  accent: "#FFC107",  // Accent color
+  background: "#232323", // Background color
+  text: "#F5F5F5", // Text color
 };
 
 export default colors;

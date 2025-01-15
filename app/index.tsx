@@ -15,7 +15,7 @@ export default function Index() {
       if (userLoggedIn) {
         router.replace("../chatting");
       } else {
-        router.replace("../../login/language");
+        router.replace("../../login/welcomePage");
       }
     }, 2000); // Simulate a delay for loading
   }, []);
