@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Modal, FlatList, Alert } from "react-native";
 import { NavigationProp } from "@react-navigation/native";  // Import for navigation
+import { useRouter } from 'expo-router'
 
 // Defining interface for Props and State
 interface Props {
@@ -46,6 +47,7 @@ export default class Language extends Component<Props, State> {
 
   render() {
     const { selectedLanguage, isModalVisible } = this.state;
+    const router=useRouter();
     return (
       <View style={styles.container}>
         <Text style={styles.welcomeText}>Welcome to Chatterly</Text>
@@ -83,8 +85,8 @@ export default class Language extends Component<Props, State> {
         </Modal>
 
         {/* Right-aligned arrow button to navigate */}
-        <TouchableOpacity onPress={this.navigateToNext} style={styles.nextButton}>
-          <Text style={styles.nextButtonText}>→</Text> {/* Right arrow mark */}
+        <TouchableOpacity onPress={() => router.push('/login/terms')} style={styles.nextButton}>
+           <Text style={styles.nextButtonText}>→</Text> {/* Right arrow mark */}
         </TouchableOpacity>
       </View>
     );
@@ -164,4 +166,4 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
   },
-});
+}); 
