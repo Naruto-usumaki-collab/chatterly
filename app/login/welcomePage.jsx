@@ -46,7 +46,7 @@ export default function WelcomePage() {
       <Animated.View style={[styles.slideContainer, { transform: [{ translateX: slideAnim }] }]}>
         <Text style={styles.title}>Welcome to Chatterly</Text>
         <Text style={styles.subtitle}>
-          Hey guys, welcome to Chatterly App. This is our first app, so please support us!
+          welcome to Chatterly App. This is our first app, so please support us!
           We’re sure you'll enjoy the app with its exciting features for fun and connection. Enjoy exploring the app!
         </Text>
         <TouchableOpacity

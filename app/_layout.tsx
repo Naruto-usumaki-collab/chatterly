@@ -31,7 +31,7 @@ export default function RootLayout() {
     <View style={[styles.container, { backgroundColor: isDarkMode ? darkColors.background : '#ffffff' }]}>
       {/* Change the status bar color and style */}
       <StatusBar 
-        style={isDarkMode ? "light" : "dark"}  // Adjust text color based on dark/light mode
+        style={isDarkMode ? "light" : "dark"} // Adust text color based on dark/light mode
         backgroundColor={isDarkMode ? darkColors.background : "#ffffff"} // Set background color based on dark/light mode
       />
 
