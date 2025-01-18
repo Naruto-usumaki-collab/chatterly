@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Animated, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Button, Animated, BackHandler, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import colors from '@/constants/color';
@@ -85,7 +85,12 @@ export default function TermsPage() {
         <Text style={styles.checkboxText}>I agree to the Terms and Conditions</Text>
       </View>
       {error && <Text style={styles.errorText}>Please tick the checkbox to proceed</Text>}
-      <Button title="Agree and Continue" onPress={handleContinue} color={colors.secondary} />
+      <TouchableOpacity
+      style={styles.checkbox}
+      onPress={handleContinue}>
+      <Text style={styles.boxText}>Agree and Continue</Text>
+      </TouchableOpacity>
+
     </Animated.View>
   );
 }
@@ -127,5 +132,16 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 10,
+  },
+  checkbox:{
+    backgroundColor: colors.primary,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+  },
+  boxText:{
+    color: colors.text,
+    fontSize: 18,
+    fontFamily: 'bold',
   },
 });

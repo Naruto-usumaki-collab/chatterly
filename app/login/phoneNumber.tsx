@@ -1,47 +1,69 @@
-import React, { Component } from 'react';
-import { Text, StyleSheet, View, TextInput, Button } from 'react-native';
+import React, { useState } from 'react';
+import { Text, StyleSheet, View, TextInput, Button, TouchableOpacity } from 'react-native';
+import colors from '@/constants/color';
 
-export default class PhoneNumber extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Enter Your Phone Number</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Phone Number"
-          placeholderTextColor="#888"
-          keyboardType="phone-pad"
-          maxLength={10}
-        />
-        <Button title="Submit" onPress={() => alert('Phone number submitted!')} color="#4CAF50" />
-      </View>
-    );
-  }
+export default function PhoneNumber() {
+  // Define state or any logic here if needed
+  const handleotp = () => {
+    console.log("Get OTP pressed");
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Enter Your Phone Number</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        placeholderTextColor="#888"
+        keyboardType="phone-pad"
+        maxLength={10}
+      />
+      <TouchableOpacity
+        style={styles.Otp}
+        onPress={handleotp}>
+        <Text style={styles.Textbox}>Get OTP</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontFamily: 'bold',
+    color: colors.secondary,
     marginBottom: 20,
   },
   input: {
     height: 50,
     width: '100%',
-    borderColor: '#ccc',
+    borderColor: colors.accent,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
-    backgroundColor: '#fff',
+    fontFamily:'regular',
+    color:colors.text,
+    backgroundColor: colors.background,
     fontSize: 16,
+  },
+  Otp:{
+    backgroundColor: colors.primary,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderColor:'white',
+    borderRadius: 8,
+  },
+  Textbox:{
+    color: colors.text,
+    fontSize: 18,
+    fontFamily: 'bold',
   },
 });

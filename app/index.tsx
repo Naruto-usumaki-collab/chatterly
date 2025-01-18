@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 export default function Index() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // Explicitly define the state type
@@ -29,7 +30,7 @@ export default function Index() {
           alignItems: "center",
         }}
       >
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={Colors.secondary} />
         <Text>Loading...</Text>
       </View>
     );
