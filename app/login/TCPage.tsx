@@ -3,10 +3,6 @@ import { View, Text, StyleSheet, Button, ScrollView, Alert } from 'react-native'
 import { useRouter } from 'expo-router';
 import colors from '@/constants/color';
 import { saveTerms, getTerms, setTermsAccepted } from '../context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
-
 
 export default function TCPage() {
   const [terms, setTerms] = useState('');
@@ -98,18 +94,8 @@ export default function TCPage() {
     }
   };
 
-  const clearStorage = async () => {
-    try {
-      await AsyncStorage.clear();
-      console.log('AsyncStorage cleared!');
-    } catch (error) {
-      console.error('Error clearing AsyncStorage:', error);
-    }
-  };
-  
-
   return (
-    <>
+   
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 20 }}>
         <Text style={styles.title}>Full Terms and Conditions</Text>
@@ -121,16 +107,8 @@ export default function TCPage() {
         color={colors.secondary}
       />
     </View>
-
-    <View style={styles.clear}>
-      <Button
-      title="Clear Storage"
-      onPress={clearStorage}
-      color={colors.secondary}
-      />
-
-    </View>
-    </>
+  
+    
   );
 }
 
