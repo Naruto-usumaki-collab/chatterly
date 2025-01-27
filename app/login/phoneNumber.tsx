@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  BackHandler,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import colors from '@/constants/color';
@@ -27,6 +28,22 @@ export default function PhoneNumber() {
   const [countryCode, setCountryCode] = useState<string>(params.countryCode?.replace('+', '') || '91');
   const [country, setCountry] = useState<string>('Country');
   const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track the focused input
+
+  useEffect(() => {
+    // Handle back button press
+    const backAction = () => {
+      router.back(); // Navigate to the previous page
+      return true; // Prevent default back button behavior
+    };
+
+    // Add event listener for hardware back button
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, []);
 
   useEffect(() => {
     if (countryCode) {

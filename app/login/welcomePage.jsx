@@ -1,103 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, BackHandler } from 'react-native';
-import { useRouter } from 'expo-router';
-import colors from '../../constants/color';
+// chatting.tsx
+import React, { Component } from "react";
+import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Icon library, ensure you have expo/vector-icons installed
+import { useRouter } from "expo-router";
 
-export default function WelcomePage() {
-  const router = useRouter();
-  const [slideAnim] = useState(new Animated.Value(-500)); // Start position of the sliding animation (off-screen)
+export default function Welcome(){
+    const router = useRouter();
 
-  useEffect(() => {
-    // Animate the slide-in effect when the page is mounted
-    Animated.timing(slideAnim, {
-      toValue: 0,  // End position (fully on-screen)
-      duration: 1000,  // Duration of the animation (in ms)
-      useNativeDriver: true,
-    }).start();
-    
-    // Handle back button press
-    const backAction = () => {
-      // Exit the app when back button is pressed
-      BackHandler.exitApp();  // Exit the app
-      return true;  // Prevent default back action
-    };
-
-    BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    // Cleanup event listener on unmount
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', backAction);
-    };
-  }, [slideAnim]);
-
-  const handleGetStarted = () => {
-    // Slide out the screen before navigating
-    Animated.timing(slideAnim, {
-      toValue: 500,  // Move off-screen (right side)
-      duration: 500,  // Duration of the animation
-      useNativeDriver: true,
-    }).start(() => {
-      router.push('/login/terms'); // Navigate to the Terms page after the animation ends
-    });
-  };
-
-  return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.slideContainer, { transform: [{ translateX: slideAnim }] }]}>
-        <Text style={styles.title}>Welcome to Chatterly</Text>
-        <Text style={styles.subtitle}>
-          welcome to Chatterly App. This is our first app, so please support us!
-          We’re sure you'll enjoy the app with its exciting features for fun and connection. Enjoy exploring the app!
-        </Text>
-        <TouchableOpacity
-          style={styles.getStartedButton}
-          onPress={handleGetStarted} // Trigger the navigation with animation
-        >
-          <Text style={styles.getStartedText}>Get Started</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
-  );
+    const handleGetStarted = async () => {
+       try {
+         router.push('../login/terms');
+       } catch (error) {}
+     };
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Ionicons name="chatbubble-ellipses-outline" size={60} color="#4CAF50" />
+          <Text style={styles.title}>Welcome to the Chatterly</Text>
+          <Text style={styles.description}>
+            Start a conversation or explore existing chats.
+          </Text>
+          <TouchableOpacity style={styles.button}
+           onPress={handleGetStarted}>
+            <Text style={styles.buttonText}>Get started</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: "center",
+    backgroundColor: "#E8F5E9",
     alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
-  slideContainer: {
-    flex: 1,
-    justifyContent: "center",
+  header: {
+    position: "absolute",
+    top: 0,
+    width: "100%",
+    backgroundColor: "#4CAF50",
+    padding: 15,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  headerText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    width: "90%",
   },
   title: {
-    fontSize: 28,
-    color: colors.secondary,
-    textAlign: "center",
-    fontFamily:'bold',
-    marginBottom: 20,
-    
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginVertical: 10,
   },
-  subtitle: {
+  description: {
     fontSize: 16,
-    color: colors.text,
+    color: "#666",
     textAlign: "center",
-    fontFamily:'regular',
-    marginBottom: 40,
-    lineHeight: 22,
+    marginBottom: 20,
   },
-  getStartedButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
+  button: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  getStartedText: {
-    color: colors.text,
-    fontSize: 18,
-    fontFamily: 'bold',
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

@@ -1,117 +1,118 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import React, { Component } from "react";
+import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Icon library, ensure you have expo/vector-icons installed
+import { useRouter } from "expo-router";
+import colors from "@/constants/color";
 
-const BackupPage: React.FC = () => {
-  const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
-  const [isSkipped, setIsSkipped] = useState<boolean>(false);
+export default function Welcome(){
+    const router = useRouter();
 
-  // Simulated backup process
-  const handleBackup = async () => {
-    setIsBackingUp(true);
-    setIsSkipped(false);
+    const handleSkip = async () => {
+      try {
+        console.log('');
+        router.push('/homepage/chatting');
+      } catch (error) {}
+    };
 
-    try {
-      // Simulate a network request or backup process
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      Alert.alert("Success", "Backup completed successfully!");
-    } catch (error) {
-      Alert.alert("Error", "Failed to complete the backup process.");
-    } finally {
-      setIsBackingUp(false);
-    }
-  };
-
-  const handleSkip = () => {
-    setIsSkipped(true);
-    Alert.alert("Skipped", "You have chosen to skip the backup process.");
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Backup Your Data</Text>
-      {!isSkipped ? (
-        isBackingUp ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#007BFF" />
-            <Text style={styles.message}>Backing up your data...</Text>
-          </View>
-        ) : (
-          <View>
-            <Text style={styles.message}>
-              Would you like to create a backup of your app data now?
-            </Text>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={handleBackup}>
-                <Text style={styles.buttonText}>Start Backup</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.skipButton]}
-                onPress={handleSkip}
-              >
-                <Text style={styles.buttonText}>Skip</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-      ) : (
-        <Text style={styles.message}>
-          Backup process was skipped. You can start it later from settings.
-        </Text>
-      )}
-    </View>
-  );
-};
-
-export default BackupPage;
+    const handleGetStarted = async () => {
+       try {
+         router.push('/');
+       } catch (error) {}
+     };
+    return (
+      <>
+      <View>
+      <Text style={styles.skipText} onPress={handleSkip}>
+        Skip
+      </Text>
+      </View>
+      <View style={styles.container}>
+        <View style={styles.card}>
+        <Ionicons name="cloud-upload-outline" size={60} color="#4CAF50" />
+          <Text style={styles.title}>Backup your Data</Text>
+          <Text style={styles.description}>
+            If your have data in your mail id to retrive the data
+          </Text>
+          <TouchableOpacity style={styles.button}
+           onPress={handleGetStarted}>
+            <Text style={styles.buttonText}>Start Backup</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      </>
+    );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#E8F5E9",
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
   },
+  header: {
+    position: "absolute",
+    top: 0,
+    width: "100%",
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  headerText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    width: "90%",
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
     color: "#333",
+    marginVertical: 10,
   },
-  message: {
+  description: {
     fontSize: 16,
-    color: "#555",
+    color: "#666",
     textAlign: "center",
     marginBottom: 20,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
   button: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#4CAF50",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    margin: 5,
-  },
-  skipButton: {
-    backgroundColor: "#FF6347",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
-    color: "#FFF",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
-  loaderContainer: {
-    alignItems: "center",
+  skipText: {
+    fontSize: 16,
+    color: "#4CAF50",
+    textAlign: "right",
+    margin: 10,
   },
 });

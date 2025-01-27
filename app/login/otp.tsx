@@ -25,7 +25,7 @@ const OtpScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Chatterly</Text>
+      <Text style={styles.title}>Enter the OTP</Text>
 
       <TextInput
         style={[styles.input, error && styles.errorInput]}
