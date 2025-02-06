@@ -1,123 +1,77 @@
-// sampleconversation.tsx
-import { ImageSourcePropType } from "react-native";
-
-// Interface for individual messages in a conversation.
-export interface ConversationMessage {
-  id: string;
-  sender: "You" | string;
-  text: string;
-  time: string;
-}
-
-// Interface for a chat history item (a conversation thread).
 export interface ChatHistoryItem {
-  id: string;
-  name: string;
-  lastMessage: string;
-  time: string;
-  conversation: ConversationMessage[];
-  image: ImageSourcePropType; // Added property for the profile image
-  unreadCount: number;        // Added property for unread message count
+  id: string
+  name: string
+  time: string
+  lastMessage: string
+  unreadCount: number
+  image?: { uri: string }
+  conversation: ConversationMessage[]
 }
 
-// Use your default image asset. Adjust the path if needed.
-const defaultImage: ImageSourcePropType = require("../../assets/images/images/default_dp.png");
+export interface ConversationMessage {
+  id: string
+  sender: string
+  text: string
+  time: string
+}
 
 export const sampleChatHistory: ChatHistoryItem[] = [
   {
     id: "1",
-    name: "Bala Anna",
-    lastMessage: "Same here. Great to catch up!",
-    time: "6:05 PM",
+    name: "John Doe",
+    time: "10:00 AM",
+    lastMessage: "Hello there!",
+    unreadCount: 2,
     conversation: [
       {
-        id: "1",
+        id: "11",
+        sender: "John Doe",
+        text: "Hello!",
+        time: "10:00 AM",
+      },
+      {
+        id: "12",
         sender: "You",
-        text: "Hello! How are you?",
-        time: "6:01 PM",
-      },
-      {
-        id: "2",
-        sender: "Bala Anna",
-        text: "I'm good, thanks! And you?",
-        time: "6:02 PM",
-      },
-      {
-        id: "3",
-        sender: "You",
-        text: "Doing well. What are you up to?",
-        time: "6:03 PM",
-      },
-      {
-        id: "4",
-        sender: "Bala Anna",
-        text: "Just working on some projects. How about you?",
-        time: "6:04 PM",
-      },
-      {
-        id: "5",
-        sender: "You",
-        text: "Same here. Great to catch up!",
-        time: "6:05 PM",
+        text: "Hi John!",
+        time: "10:01 AM",
       },
     ],
-    image: defaultImage,
-    unreadCount: 2,
   },
   {
     id: "2",
-    name: "John Doe",
-    lastMessage: "See you soon!",
-    time: "5:30 PM",
+    name: "Jane Smith",
+    time: "9:30 AM",
+    lastMessage: "How are you?",
+    unreadCount: 0,
     conversation: [
       {
-        id: "1",
-        sender: "John Doe",
-        text: "Hey, how's it going?",
-        time: "5:00 PM",
+        id: "21",
+        sender: "Jane Smith",
+        text: "How are you doing?",
+        time: "9:30 AM",
       },
       {
-        id: "2",
+        id: "22",
         sender: "You",
-        text: "Pretty good, what about you?",
-        time: "5:05 PM",
-      },
-      {
-        id: "3",
-        sender: "John Doe",
-        text: "All good here. See you soon!",
-        time: "5:30 PM",
+        text: "I'm good, thanks!",
+        time: "9:31 AM",
       },
     ],
-    image: defaultImage,
-    unreadCount: 0,
   },
   {
     id: "3",
-    name: "Alice",
-    lastMessage: "Let's catch up later!",
-    time: "4:20 PM",
+    name: "Peter Jones",
+    time: "8:00 AM",
+    lastMessage: "Let's meet up!",
+    unreadCount: 1,
     conversation: [
       {
-        id: "1",
-        sender: "Alice",
-        text: "Hi, long time no see!",
-        time: "4:00 PM",
-      },
-      {
-        id: "2",
-        sender: "You",
-        text: "Yeah, it's been a while",
-        time: "4:10 PM",
-      },
-      {
-        id: "3",
-        sender: "Alice",
-        text: "Let's catch up later!",
-        time: "4:20 PM",
+        id: "31",
+        sender: "Peter Jones",
+        text: "Let's meet up later today!",
+        time: "8:00 AM",
       },
     ],
-    image: defaultImage,
-    unreadCount: 1,
   },
-];
+]
+
