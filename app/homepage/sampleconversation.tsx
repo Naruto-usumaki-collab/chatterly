@@ -1,77 +1,48 @@
+// sampleConversation.tsx
+
 export interface ChatHistoryItem {
-  id: string
-  name: string
-  time: string
-  lastMessage: string
-  unreadCount: number
-  image?: { uri: string }
-  conversation: ConversationMessage[]
+  id: string;
+  name: string;
+  avatar: string;
+  conversation: ConversationMessage[];
 }
 
 export interface ConversationMessage {
-  id: string
-  sender: string
-  text: string
-  time: string
+  id: string;
+  sender: string;
+  message: string;
+  timestamp: string;
+  messageType: "text" | "image" | "document" | "audio" | "location";
 }
 
 export const sampleChatHistory: ChatHistoryItem[] = [
   {
     id: "1",
     name: "John Doe",
-    time: "10:00 AM",
-    lastMessage: "Hello there!",
-    unreadCount: 2,
+    avatar: "https://example.com/john-avatar.jpg",
     conversation: [
       {
         id: "11",
         sender: "John Doe",
-        text: "Hello!",
-        time: "10:00 AM",
+        message: "Hello there!",
+        timestamp: "2023-06-01T10:00:00Z",
+        messageType: "text",
       },
       {
         id: "12",
         sender: "You",
-        text: "Hi John!",
-        time: "10:01 AM",
+        message: "Hi John!",
+        timestamp: "2023-06-01T10:01:00Z",
+        messageType: "text",
+      },
+      {
+        id: "13",
+        sender: "John Doe",
+        message: "How's your day going?",
+        timestamp: "2023-06-02T14:30:00Z",
+        messageType: "text",
       },
     ],
   },
-  {
-    id: "2",
-    name: "Jane Smith",
-    time: "9:30 AM",
-    lastMessage: "How are you?",
-    unreadCount: 0,
-    conversation: [
-      {
-        id: "21",
-        sender: "Jane Smith",
-        text: "How are you doing?",
-        time: "9:30 AM",
-      },
-      {
-        id: "22",
-        sender: "You",
-        text: "I'm good, thanks!",
-        time: "9:31 AM",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Peter Jones",
-    time: "8:00 AM",
-    lastMessage: "Let's meet up!",
-    unreadCount: 1,
-    conversation: [
-      {
-        id: "31",
-        sender: "Peter Jones",
-        text: "Let's meet up later today!",
-        time: "8:00 AM",
-      },
-    ],
-  },
-]
-
+  // Add more chat history items as needed
+];

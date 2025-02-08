@@ -1,6 +1,4 @@
-'use client'
-
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -8,119 +6,106 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  StyleSheet,
-  Platform,
+  Modal,
   Alert,
-} from "react-native"
-import { Ionicons } from "@expo/vector-icons"
-import { useLocalSearchParams, useRouter } from "expo-router"
-import { Audio } from "expo-av"
-import * as ImagePicker from "expo-image-picker"
-import * as DocumentPicker from "expo-document-picker"
-import * as Location from "expo-location"
-import DateTimePicker from '@react-native-community/datetimepicker'
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Audio } from "expo-av";
+import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
+import * as Location from "expo-location";
+import CalendarPicker from "react-native-calendar-picker";
+import { sampleChatHistory, ChatHistoryItem, ConversationMessage } from "./sampleconversation";
 
-// Define the types
-type MessageType = 'text' | 'image' | 'document' | 'audio' | 'location'
 
-interface ConversationMessage {
-  id: string
-  sender: string
-  message: string
-  timestamp: string
-  messageType: MessageType
-}
-
-interface ChatHistoryItem {
-  id: string
-  name: string
-  avatar: string
-  conversation: ConversationMessage[]
-}
 
 interface CustomDocumentPickerSuccessResult {
-  canceled: false;
-  uri: string;
-  name: string;
-  size?: number;
+  canceled: false
+  uri: string
+  name: string
+  size?: number
 }
 
 interface CustomDocumentPickerCanceledResult {
-  canceled: true;
+  canceled: true
 }
 
 type CustomDocumentPickerResult =
   | CustomDocumentPickerSuccessResult
-  | CustomDocumentPickerCanceledResult;
+  | CustomDocumentPickerCanceledResult
 
-
-// Mock data (replace with your actual data source)
-const sampleChatHistory: ChatHistoryItem[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    avatar: 'https://example.com/avatar.jpg',
-    conversation: []
-  }
-]
 
 export default function Chat() {
-  const router = useRouter()
-  const params = useLocalSearchParams()
-  const chatId = params.id as string
-  const [message, setMessage] = useState("")
-  const [recording, setRecording] = useState<Audio.Recording | null>(null)
-  const [isRecording, setIsRecording] = useState(false)
-  const [conversation, setConversation] = useState<ConversationMessage[]>(
-    sampleChatHistory.find((item) => item.id === chatId)?.conversation || [],
-  )
-  const [isBlocked, setIsBlocked] = useState(false)
-  const [isSearching, setIsSearching] = useState(false)
-  const [searchText, setSearchText] = useState("")
-  const [searchDate, setSearchDate] = useState(new Date())
-  const [showDatePicker, setShowDatePicker] = useState(false)
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const chatId = params.id as string;
+  const [message, setMessage] = useState("");
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [conversation, setConversation] = useState<ConversationMessage[]>([]);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [tempDate, setTempDate] = useState(new Date());
 
-  const chat = sampleChatHistory.find((item) => item.id === chatId)
-  const flatListRef = useRef<FlatList>(null)
+  const flatListRef = useRef<FlatList>(null);
+  const chat = sampleChatHistory.find((item) => item.id === chatId);
+
+  useEffect(() => {
+    if (chat) {
+      setConversation(chat.conversation);
+    }
+  }, [chat]);
 
   if (!chat) {
     return (
       <View style={styles.container}>
-        <Text style={{ color: "#fff", alignSelf: "center", marginTop: 20 }}>Chat not found</Text>
+        <Text style={styles.messageText}>Chat not found</Text>
       </View>
-    )
+    );
   }
+
+   // --- NEW: Real-time filtering ---
+  const displayedConversation = isSearching
+    ? conversation.filter((msg) =>
+        msg.message.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : conversation;
 
   const handleSend = () => {
     if (message.trim()) {
       const newMessage: ConversationMessage = {
         id: Date.now().toString(),
-        sender: 'You',
+        sender: "You",
         message: message,
         timestamp: new Date().toISOString(),
-        messageType: 'text'
-      }
-      setConversation([...conversation, newMessage])
-      setMessage("")
-      flatListRef.current?.scrollToEnd({ animated: true })
+        messageType: "text",
+      };
+      setConversation([...conversation, newMessage]);
+      setMessage("");
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
-  }
+  };
 
   const handleImagePick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 1
     })
 
     if (!result.canceled) {
       const newMessage: ConversationMessage = {
         id: Date.now().toString(),
-        sender: 'You',
+        sender: "You",
         message: result.assets[0].uri,
         timestamp: new Date().toISOString(),
-        messageType: 'image'
+        messageType: "image"
       }
       setConversation([...conversation, newMessage])
       flatListRef.current?.scrollToEnd({ animated: true })
@@ -128,47 +113,37 @@ export default function Chat() {
   }
 
   const handleDocumentPick = async () => {
-    // Get the result and cast it to our custom type.
     const result = (await DocumentPicker.getDocumentAsync({
-      type: '*/*',
-    })) as unknown as CustomDocumentPickerResult;
-  
-    // If the user did not cancel the picker, proceed.
+      type: "*/*"
+    })) as unknown as CustomDocumentPickerResult
+
     if (!result.canceled) {
-      // Now TypeScript knows that result is a CustomDocumentPickerSuccessResult.
       const newMessage: ConversationMessage = {
         id: Date.now().toString(),
-        sender: 'You',
-        // You can use the URI directly or extract the file name from result.uri
+        sender: "You",
         message: result.uri,
         timestamp: new Date().toISOString(),
-        messageType: 'document',
-      };
-      setConversation([...conversation, newMessage]);
-      flatListRef.current?.scrollToEnd({ animated: true });
+        messageType: "document"
+      }
+      setConversation([...conversation, newMessage])
+      flatListRef.current?.scrollToEnd({ animated: true })
     }
-  };
-andr  
-  
-  
-  
-  
-  
+  }
 
   const handleLocationPick = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Permission to access location was denied')
+    if (status !== "granted") {
+      Alert.alert("Permission to access location was denied")
       return
     }
 
     let location = await Location.getCurrentPositionAsync({})
     const newMessage: ConversationMessage = {
       id: Date.now().toString(),
-      sender: 'You',
+      sender: "You",
       message: `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`,
       timestamp: new Date().toISOString(),
-      messageType: 'location'
+      messageType: "location"
     }
     setConversation([...conversation, newMessage])
     flatListRef.current?.scrollToEnd({ animated: true })
@@ -179,7 +154,7 @@ andr
       await Audio.requestPermissionsAsync()
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+        playsInSilentModeIOS: true
       })
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
@@ -187,7 +162,7 @@ andr
       setRecording(recording)
       setIsRecording(true)
     } catch (err) {
-      console.error('Failed to start recording', err)
+      console.error("Failed to start recording", err)
     }
   }
 
@@ -200,10 +175,10 @@ andr
     if (uri) {
       const newMessage: ConversationMessage = {
         id: Date.now().toString(),
-        sender: 'You',
+        sender: "You",
         message: uri,
         timestamp: new Date().toISOString(),
-        messageType: 'audio'
+        messageType: "audio"
       }
       setConversation([...conversation, newMessage])
       flatListRef.current?.scrollToEnd({ animated: true })
@@ -211,53 +186,88 @@ andr
   }
 
   const handleBlock = () => {
-    setIsBlocked(!isBlocked)
-  }
+    setIsBlocked(!isBlocked);
+  };
 
   const handleSearch = () => {
-    setIsSearching(!isSearching)
-  }
+    setIsSearching(!isSearching);
+  };
+
+  const showDatePicker = () => {
+    setTempDate(selectedDate);
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = () => {
+    setSelectedDate(tempDate);
+    hideDatePicker();
+    // Filter messages based on the selected date
+    const filteredMessages = conversation.filter(
+      (msg) => new Date(msg.timestamp).toDateString() === tempDate.toDateString()
+    );
+    setConversation(filteredMessages);
+  };
 
   const renderMessage = ({ item }: { item: ConversationMessage }) => (
-    <View style={[styles.messageContainer, item.sender === 'You' ? styles.messageRight : styles.messageLeft]}>
+    <View
+      style={[
+        styles.messageContainer,
+        item.sender === "You" ? styles.messageRight : styles.messageLeft,
+      ]}
+    >
       <Text style={styles.messageSender}>{item.sender}</Text>
-      {item.messageType === 'text' && <Text style={styles.messageText}>{item.message}</Text>}
-      {item.messageType === 'image' && <Image source={{ uri: item.message }} style={styles.messageImage} />}
-      {item.messageType === 'document' && (
+      {item.messageType === "text" && (
+        <Text style={styles.messageText}>{item.message}</Text>
+      )}
+      {item.messageType === "image" && (
+        <Image source={{ uri: item.message }} style={styles.messageImage} />
+      )}
+      {item.messageType === "document" && (
         <View style={styles.documentContainer}>
-          <Ionicons name="document" size={24} color="#fff" />
-          <Text style={styles.documentText}>{item.message}</Text>
+          <Ionicons name="document" size={24} style={styles.icon} />
+          <Text style={styles.messageText}>{item.message}</Text>
         </View>
       )}
-      {item.messageType === 'audio' && (
+      {item.messageType === "audio" && (
         <View style={styles.audioContainer}>
-          <Ionicons name="mic" size={24} color="#fff" />
-          <Text style={styles.audioText}>Audio message</Text>
+          <Ionicons name="mic" size={24} style={styles.icon} />
+          <Text style={styles.messageText}>Audio message</Text>
         </View>
       )}
-      {item.messageType === 'location' && <Text style={styles.messageText}>{item.message}</Text>}
-      <Text style={styles.messageTime}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+      {item.messageType === "location" && (
+        <Text style={styles.messageText}>{item.message}</Text>
+      )}
+      <Text style={styles.messageTime}>
+        {new Date(item.timestamp).toLocaleTimeString()}
+      </Text>
     </View>
-  )
+  );
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1E90FF" />
-        </TouchableOpacity>
         <Image source={{ uri: chat.avatar }} style={styles.profilePic} />
         <Text style={styles.headerTitle}>{chat.name}</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={handleSearch}>
-            <Ionicons name="search" size={24} color="#1E90FF" style={styles.icon} />
+            <Ionicons name="search" size={24} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleBlock}>
-            <Ionicons name={isBlocked ? "lock-closed" : "lock-open"} size={24} color="#1E90FF" style={styles.icon} />
+            <Ionicons
+              name={isBlocked ? "lock-closed" : "lock-open"}
+              size={24}
+              style={styles.icon}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Blocked view */}
       {isBlocked ? (
         <View style={styles.blockedContainer}>
           <Text style={styles.blockedText}>This user is blocked</Text>
@@ -281,29 +291,29 @@ andr
                 <TextInput
                   style={styles.searchInput}
                   placeholder="Search messages..."
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#fff"
                   value={searchText}
                   onChangeText={setSearchText}
                 />
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                  <Ionicons name="calendar" size={24} color="#1E90FF" />
+                <TouchableOpacity onPress={showDatePicker}>
+                  <Ionicons name="calendar" size={24} style={styles.icon} />
                 </TouchableOpacity>
               </View>
             ) : (
               <>
                 <TouchableOpacity onPress={handleImagePick}>
-                  <Ionicons name="image" size={24} color="#1E90FF" />
+                  <Ionicons name="image" size={24} style={styles.icon} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDocumentPick}>
-                  <Ionicons name="document" size={24} color="#1E90FF" />
+                  <Ionicons name="document" size={24} style={styles.icon} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleLocationPick}>
-                  <Ionicons name="location" size={24} color="#1E90FF" />
+                  <Ionicons name="location" size={24} style={styles.icon} />
                 </TouchableOpacity>
                 <TextInput
                   style={styles.input}
                   placeholder="Type a message..."
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#fff"
                   value={message}
                   onChangeText={setMessage}
                 />
@@ -313,11 +323,11 @@ andr
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity onPress={startRecording}>
-                    <Ionicons name="mic" size={24} color="#1E90FF" />
+                    <Ionicons name="mic" size={24} style={styles.icon} />
                   </TouchableOpacity>
                 )}
                 <TouchableOpacity onPress={handleSend}>
-                  <Ionicons name="send" size={24} color="#1E90FF" />
+                  <Ionicons name="send" size={24} style={styles.icon} />
                 </TouchableOpacity>
               </>
             )}
@@ -325,19 +335,26 @@ andr
         </>
       )}
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={searchDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false)
-            if (selectedDate) {
-              setSearchDate(selectedDate)
-            }
-          }}
-        />
-      )}
+      {/* Calendar Date Picker Modal */}
+      <Modal visible={isDatePickerVisible} transparent animationType="slide">
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Select a Date</Text>
+            <CalendarPicker
+              onDateChange={(date: Date) => setTempDate(date)}
+              selectedStartDate={tempDate}
+            />
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity style={styles.modalButton} onPress={hideDatePicker}>
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalButton} onPress={handleConfirm}>
+                <Text style={styles.modalButtonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -372,6 +389,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginLeft: 15,
+    color: "#1E90FF",
   },
   conversationContainer: {
     padding: 15,
@@ -409,17 +427,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  documentText: {
-    color: "#fff",
-    marginLeft: 8,
-  },
   audioContainer: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  audioText: {
-    color: "#fff",
-    marginLeft: 8,
   },
   messageTime: {
     fontSize: 10,
@@ -470,6 +480,41 @@ const styles = StyleSheet.create({
   },
   unblockText: {
     color: "#1E90FF",
+    fontSize: 16,
+  },
+  // Modal styles for Calendar Picker
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    backgroundColor: "#1E1E1E",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    color: "#fff",
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: "bold",
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    marginTop: 15,
+  },
+  modalButton: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  modalButtonText: {
+    color: "#fff",
     fontSize: 16,
   },
 })
