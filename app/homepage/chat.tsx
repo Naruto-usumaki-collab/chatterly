@@ -1,25 +1,68 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import React, { useState, useRef } from "react"
 import {
-  StyleSheet,
   View,
   FlatList,
   Text,
   TouchableOpacity,
   TextInput,
   Image,
-  ActionSheetIOS,
+  StyleSheet,
   Platform,
   Alert,
 } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useRouter } from "expo-router"
-import { sampleChatHistory, type ConversationMessage } from "./sampleconversation"
 import { Audio } from "expo-av"
 import * as ImagePicker from "expo-image-picker"
 import * as DocumentPicker from "expo-document-picker"
 import * as Location from "expo-location"
+import DateTimePicker from '@react-native-community/datetimepicker'
+
+// Define the types
+type MessageType = 'text' | 'image' | 'document' | 'audio' | 'location'
+
+interface ConversationMessage {
+  id: string
+  sender: string
+  message: string
+  timestamp: string
+  messageType: MessageType
+}
+
+interface ChatHistoryItem {
+  id: string
+  name: string
+  avatar: string
+  conversation: ConversationMessage[]
+}
+
+interface CustomDocumentPickerSuccessResult {
+  canceled: false;
+  uri: string;
+  name: string;
+  size?: number;
+}
+
+interface CustomDocumentPickerCanceledResult {
+  canceled: true;
+}
+
+type CustomDocumentPickerResult =
+  | CustomDocumentPickerSuccessResult
+  | CustomDocumentPickerCanceledResult;
+
+
+// Mock data (replace with your actual data source)
+const sampleChatHistory: ChatHistoryItem[] = [
+  {
+    id: '1',
+    name: 'John Doe',
+    avatar: 'https://example.com/avatar.jpg',
+    conversation: []
+  }
+]
 
 export default function Chat() {
   const router = useRouter()
@@ -31,8 +74,14 @@ export default function Chat() {
   const [conversation, setConversation] = useState<ConversationMessage[]>(
     sampleChatHistory.find((item) => item.id === chatId)?.conversation || [],
   )
+  const [isBlocked, setIsBlocked] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchText, setSearchText] = useState("")
+  const [searchDate, setSearchDate] = useState(new Date())
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const chat = sampleChatHistory.find((item) => item.id === chatId)
+  const flatListRef = useRef<FlatList>(null)
 
   if (!chat) {
     return (
@@ -42,55 +91,87 @@ export default function Chat() {
     )
   }
 
-  const renderMessageItem = ({ item }: { item: ConversationMessage }) => {
-    const isSentByUser = item.sender === "You"
-    return (
-      <TouchableOpacity
-        onLongPress={() => handleMessageLongPress(item)}
-        style={[styles.messageContainer, isSentByUser ? styles.messageRight : styles.messageLeft]}
-      >
-        <Text style={styles.messageSender}>{item.sender}</Text>
-        <Text style={styles.messageText}>{item.text}</Text>
-        <Text style={styles.messageTime}>{item.time}</Text>
-      </TouchableOpacity>
-    )
+  const handleSend = () => {
+    if (message.trim()) {
+      const newMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        sender: 'You',
+        message: message,
+        timestamp: new Date().toISOString(),
+        messageType: 'text'
+      }
+      setConversation([...conversation, newMessage])
+      setMessage("")
+      flatListRef.current?.scrollToEnd({ animated: true })
+    }
   }
 
-  const handleMessageLongPress = (message: ConversationMessage) => {
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Cancel", "Reply", "Copy", "Delete"],
-          cancelButtonIndex: 0,
-          destructiveButtonIndex: 3,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) {
-            // Reply
-            setMessage(`@${message.sender} `)
-          } else if (buttonIndex === 2) {
-            // Copy
-            // Implement copy to clipboard functionality
-          } else if (buttonIndex === 3) {
-            // Delete
-            setConversation(conversation.filter((msg) => msg.id !== message.id))
-          }
-        },
-      )
-    } else {
-      // For Android, you might want to use a custom modal or a third-party library
-      Alert.alert("Message Options", "Choose an action", [
-        { text: "Reply", onPress: () => setMessage(`@${message.sender} `) },
-        {
-          text: "Copy",
-          onPress: () => {
-            /* Implement copy to clipboard functionality */
-          },
-        },
-        { text: "Delete", onPress: () => setConversation(conversation.filter((msg) => msg.id !== message.id)) },
-        { text: "Cancel", style: "cancel" },
-      ])
+  const handleImagePick = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+    if (!result.canceled) {
+      const newMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        sender: 'You',
+        message: result.assets[0].uri,
+        timestamp: new Date().toISOString(),
+        messageType: 'image'
+      }
+      setConversation([...conversation, newMessage])
+      flatListRef.current?.scrollToEnd({ animated: true })
     }
+  }
+
+  const handleDocumentPick = async () => {
+    // Get the result and cast it to our custom type.
+    const result = (await DocumentPicker.getDocumentAsync({
+      type: '*/*',
+    })) as unknown as CustomDocumentPickerResult;
+  
+    // If the user did not cancel the picker, proceed.
+    if (!result.canceled) {
+      // Now TypeScript knows that result is a CustomDocumentPickerSuccessResult.
+      const newMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        sender: 'You',
+        // You can use the URI directly or extract the file name from result.uri
+        message: result.uri,
+        timestamp: new Date().toISOString(),
+        messageType: 'document',
+      };
+      setConversation([...conversation, newMessage]);
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
+  };
+andr  
+  
+  
+  
+  
+  
+
+  const handleLocationPick = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync()
+    if (status !== 'granted') {
+      Alert.alert('Permission to access location was denied')
+      return
+    }
+
+    let location = await Location.getCurrentPositionAsync({})
+    const newMessage: ConversationMessage = {
+      id: Date.now().toString(),
+      sender: 'You',
+      message: `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`,
+      timestamp: new Date().toISOString(),
+      messageType: 'location'
+    }
+    setConversation([...conversation, newMessage])
+    flatListRef.current?.scrollToEnd({ animated: true })
   }
 
   const startRecording = async () => {
@@ -100,11 +181,13 @@ export default function Chat() {
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       })
-      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      )
       setRecording(recording)
       setIsRecording(true)
     } catch (err) {
-      console.error("Failed to start recording", err)
+      console.error('Failed to start recording', err)
     }
   }
 
@@ -114,230 +197,147 @@ export default function Chat() {
     setIsRecording(false)
     await recording.stopAndUnloadAsync()
     const uri = recording.getURI()
-    console.log("Recording stopped and stored at", uri)
-    // Here you would typically send the audio file to your backend
-  }
-
-  const handleAttachment = () => {
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Cancel", "Image", "Video", "Document", "Audio", "Location", "Poll"],
-          cancelButtonIndex: 0,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) pickImage()
-          else if (buttonIndex === 2) pickVideo()
-          else if (buttonIndex === 3) pickDocument()
-          else if (buttonIndex === 4) pickAudio()
-          else if (buttonIndex === 5) pickLocation()
-          else if (buttonIndex === 6) createPoll()
-        },
-      )
-    } else {
-      // For Android, you might want to use a custom modal or a third-party library
-      Alert.alert("Attach", "Choose attachment type", [
-        { text: "Image", onPress: pickImage },
-        { text: "Video", onPress: pickVideo },
-        { text: "Document", onPress: pickDocument },
-        { text: "Audio", onPress: pickAudio },
-        { text: "Location", onPress: pickLocation },
-        { text: "Poll", onPress: createPoll },
-        { text: "Cancel", style: "cancel" },
-      ])
+    if (uri) {
+      const newMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        sender: 'You',
+        message: uri,
+        timestamp: new Date().toISOString(),
+        messageType: 'audio'
+      }
+      setConversation([...conversation, newMessage])
+      flatListRef.current?.scrollToEnd({ animated: true })
     }
-  }
-
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    })
-
-    if (!result.canceled) {
-      console.log(result.assets[0].uri)
-      // Here you would typically send the image to your backend
-    }
-  }
-
-  const pickVideo = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 1,
-    })
-
-    if (!result.canceled) {
-      console.log(result.assets[0].uri)
-      // Here you would typically send the video to your backend
-    }
-  }
-
-  const pickDocument = async () => {
-    const result = await DocumentPicker.getDocumentAsync({})
-    if (result.assets && result.assets.length > 0) {
-      console.log(result.assets[0].uri)
-      // Here you would typically send the document to your backend
-    }
-  }
-
-  const pickAudio = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "audio/*",
-    })
-    if (result.assets && result.assets.length > 0) {
-      console.log(result.assets[0].uri)
-      // Here you would typically send the audio file to your backend
-    }
-  }
-
-  const pickLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync()
-    if (status !== "granted") {
-      Alert.alert("Permission to access location was denied")
-      return
-    }
-
-    const location = await Location.getCurrentPositionAsync({})
-    console.log(location)
-    // Here you would typically send the location to your backend
-  }
-
-  const createPoll = () => {
-    // Implement poll creation logic
-    console.log("Create poll")
-  }
-
-  const handleSendMessage = () => {
-    if (message.trim() === "") return
-
-    const newMessage: ConversationMessage = {
-      id: Date.now().toString(),
-      sender: "You",
-      text: message,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    }
-
-    setConversation((prev) => [...prev, newMessage])
-    setMessage("")
-  }
-
-  const handleMoreOptions = () => {
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Cancel", "Search", "Change Theme", "Block", "Report", "Add Shortcut", "Clear Chat"],
-          cancelButtonIndex: 0,
-          destructiveButtonIndex: 6,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) handleSearch()
-          else if (buttonIndex === 2) handleChangeTheme()
-          else if (buttonIndex === 3) handleBlock()
-          else if (buttonIndex === 4) handleReport()
-          else if (buttonIndex === 5) handleAddShortcut()
-          else if (buttonIndex === 6) handleClearChat()
-        },
-      )
-    } else {
-      // For Android, you might want to use a custom modal or a third-party library
-      Alert.alert("More Options", "Choose an action", [
-        { text: "Search", onPress: handleSearch },
-        { text: "Change Theme", onPress: handleChangeTheme },
-        { text: "Block", onPress: handleBlock },
-        { text: "Report", onPress: handleReport },
-        { text: "Add Shortcut", onPress: handleAddShortcut },
-        { text: "Clear Chat", onPress: handleClearChat },
-        { text: "Cancel", style: "cancel" },
-      ])
-    }
-  }
-
-  const handleSearch = () => {
-    // Implement search functionality
-    console.log("Search")
-  }
-
-  const handleChangeTheme = () => {
-    // Implement theme change functionality
-    console.log("Change theme")
   }
 
   const handleBlock = () => {
-    // Implement block functionality
-    console.log("Block user")
+    setIsBlocked(!isBlocked)
   }
 
-  const handleReport = () => {
-    // Implement report functionality
-    console.log("Report user")
+  const handleSearch = () => {
+    setIsSearching(!isSearching)
   }
 
-  const handleAddShortcut = () => {
-    // Implement add shortcut functionality
-    console.log("Add shortcut")
-  }
-
-  const handleClearChat = () => {
-    // Implement clear chat functionality
-    setConversation([])
-  }
+  const renderMessage = ({ item }: { item: ConversationMessage }) => (
+    <View style={[styles.messageContainer, item.sender === 'You' ? styles.messageRight : styles.messageLeft]}>
+      <Text style={styles.messageSender}>{item.sender}</Text>
+      {item.messageType === 'text' && <Text style={styles.messageText}>{item.message}</Text>}
+      {item.messageType === 'image' && <Image source={{ uri: item.message }} style={styles.messageImage} />}
+      {item.messageType === 'document' && (
+        <View style={styles.documentContainer}>
+          <Ionicons name="document" size={24} color="#fff" />
+          <Text style={styles.documentText}>{item.message}</Text>
+        </View>
+      )}
+      {item.messageType === 'audio' && (
+        <View style={styles.audioContainer}>
+          <Ionicons name="mic" size={24} color="#fff" />
+          <Text style={styles.audioText}>Audio message</Text>
+        </View>
+      )}
+      {item.messageType === 'location' && <Text style={styles.messageText}>{item.message}</Text>}
+      <Text style={styles.messageTime}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+    </View>
+  )
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#1E90FF" />
         </TouchableOpacity>
-        <Image source={chat.image} style={styles.profilePic} />
+        <Image source={{ uri: chat.avatar }} style={styles.profilePic} />
         <Text style={styles.headerTitle}>{chat.name}</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => console.log("Video call")}>
-            <Ionicons name="videocam-outline" size={24} color="#1E90FF" style={styles.icon} />
+          <TouchableOpacity onPress={handleSearch}>
+            <Ionicons name="search" size={24} color="#1E90FF" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log("Voice call")}>
-            <Ionicons name="call-outline" size={24} color="#1E90FF" style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleMoreOptions}>
-            <Ionicons name="ellipsis-vertical" size={24} color="#1E90FF" style={styles.icon} />
+          <TouchableOpacity onPress={handleBlock}>
+            <Ionicons name={isBlocked ? "lock-closed" : "lock-open"} size={24} color="#1E90FF" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Chat Conversation */}
-      <FlatList
-        data={conversation}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessageItem}
-        contentContainerStyle={styles.conversationContainer}
-      />
+      {isBlocked ? (
+        <View style={styles.blockedContainer}>
+          <Text style={styles.blockedText}>This user is blocked</Text>
+          <TouchableOpacity onPress={handleBlock}>
+            <Text style={styles.unblockText}>Unblock</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <FlatList
+            ref={flatListRef}
+            data={conversation}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.conversationContainer}
+          />
 
-      {/* Message Input */}
-      <View style={styles.inputContainer}>
-        <TouchableOpacity onPress={handleAttachment}>
-          <Ionicons name="add-circle-outline" size={24} color="#1E90FF" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type a message..."
-          placeholderTextColor="#888"
+          <View style={styles.inputContainer}>
+            {isSearching ? (
+              <View style={styles.searchContainer}>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search messages..."
+                  placeholderTextColor="#888"
+                  value={searchText}
+                  onChangeText={setSearchText}
+                />
+                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                  <Ionicons name="calendar" size={24} color="#1E90FF" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity onPress={handleImagePick}>
+                  <Ionicons name="image" size={24} color="#1E90FF" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleDocumentPick}>
+                  <Ionicons name="document" size={24} color="#1E90FF" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleLocationPick}>
+                  <Ionicons name="location" size={24} color="#1E90FF" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Type a message..."
+                  placeholderTextColor="#888"
+                  value={message}
+                  onChangeText={setMessage}
+                />
+                {isRecording ? (
+                  <TouchableOpacity onPress={stopRecording}>
+                    <Ionicons name="stop" size={24} color="red" />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={startRecording}>
+                    <Ionicons name="mic" size={24} color="#1E90FF" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={handleSend}>
+                  <Ionicons name="send" size={24} color="#1E90FF" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </>
+      )}
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={searchDate}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false)
+            if (selectedDate) {
+              setSearchDate(selectedDate)
+            }
+          }}
         />
-        {message ? (
-          <TouchableOpacity onPress={handleSendMessage}>
-            <Ionicons name="send" size={24} color="#1E90FF" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={isRecording ? stopRecording : startRecording}>
-            <Ionicons name={isRecording ? "stop-circle" : "mic"} size={24} color="#1E90FF" />
-          </TouchableOpacity>
-        )}
-      </View>
+      )}
     </View>
   )
 }
@@ -400,6 +400,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
   },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+  },
+  documentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  documentText: {
+    color: "#fff",
+    marginLeft: 8,
+  },
+  audioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  audioText: {
+    color: "#fff",
+    marginLeft: 8,
+  },
   messageTime: {
     fontSize: 10,
     color: "#888",
@@ -422,5 +443,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: 50,
   },
+  searchContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2C2C2C",
+    borderRadius: 20,
+    marginLeft: 10,
+    paddingHorizontal: 10,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 16,
+    height: 40,
+  },
+  blockedContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  blockedText: {
+    color: "#fff",
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  unblockText: {
+    color: "#1E90FF",
+    fontSize: 16,
+  },
 })
-
