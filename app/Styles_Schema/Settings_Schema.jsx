@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import FontStyles from "../../constants/fonts";
 
 const styles = StyleSheet.create({
   container: {
@@ -13,7 +14,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Use bold font
     color: "#E0E0E0",
     marginLeft: 15,
   },
@@ -30,9 +31,9 @@ const styles = StyleSheet.create({
   optionTitle: {
     flex: 1,
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Use regular font
     color: "#E0E0E0",
   },
-})
-
+});
 
 export default styles;

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import FontStyles from "../../constants/fonts";
 
 const styles = StyleSheet.create({
   container: {
@@ -21,7 +22,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Using custom bold font
     color: "#000",
     marginLeft: 15,
   },
@@ -51,12 +52,13 @@ const styles = StyleSheet.create({
   },
   messageSender: {
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Bold sender name
     color: "#1E90FF",
     marginBottom: 4,
   },
   messageText: {
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Regular font for message text
     color: "#fff",
   },
   messageImage: {
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: 10,
+    fontFamily: FontStyles.light, // Light font for timestamps
     color: "#888",
     alignSelf: "flex-end",
     marginTop: 4,
@@ -92,6 +95,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     color: "#fff",
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Regular font for input text
     height: 50,
   },
   searchContainer: {
@@ -107,6 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#fff",
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Regular font for search input
     height: 40,
   },
   blockedContainer: {
@@ -117,11 +122,13 @@ const styles = StyleSheet.create({
   blockedText: {
     color: "#fff",
     fontSize: 18,
+    fontFamily: FontStyles.regular, // Regular font for blocked text
     marginBottom: 10,
   },
   unblockText: {
     color: "#1E90FF",
     fontSize: 16,
+    fontFamily: FontStyles.bold, // Bold font for emphasis
   },
   // Modal styles for Calendar Picker
   modalBackground: {
@@ -140,8 +147,8 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: "#fff",
     fontSize: 18,
+    fontFamily: FontStyles.bold, // Bold font for modal title
     marginBottom: 10,
-    fontWeight: "bold",
   },
   modalButtonContainer: {
     flexDirection: "row",
@@ -157,7 +164,8 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: "#fff",
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Regular font for button text
   },
-})
+});
 
 export default styles;

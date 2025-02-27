@@ -2,43 +2,44 @@ import React from 'react';
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
-import { Appearance, View, StyleSheet } from "react-native";
+import { Appearance, View, StyleSheet, Text } from "react-native";
+import FontStyles from "../constants/fonts"; 
 
 // Define dark theme colors
 const darkColors = {
-  background: "#121212", // Default background color
-  text: "#EAEAEA", // Light text for dark background
-  primary: "#BB86FC", // Purple for primary elements
-  accent: "#03DAC6", // Teal for accent elements
+  background: "#121212",
+  text: "#EAEAEA",
+  primary: "#BB86FC",
+  accent: "#03DAC6",
 };
 
 export default function RootLayout() {
-
-   // Detect current theme (light or dark)
+  // Detect current theme (light or dark)
   const colorScheme = Appearance.getColorScheme();
-  
-  // Set the theme based on system preference or dark mode
   const isDarkMode = colorScheme === 'dark';
 
-  useFonts({
-      'regular':require('../assets/fonts/Raleway-Regular.ttf'),
-      'light':require('../assets/fonts/Raleway-LightItalic.ttf'),
-      'bold':require('../assets/fonts/Raleway-Bold.ttf'),
+  const [fontsLoaded] = useFonts({
+    'Raleway-Regular': require('../assets/fonts/Raleway-Regular.ttf'),
+    'Raleway-LightItalic': require('../assets/fonts/Raleway-LightItalic.ttf'),
+    'Raleway-Bold': require('../assets/fonts/Raleway-Bold.ttf'),
+  });
 
-  })
+  if (!fontsLoaded) {
+    return null; // or a loading indicator
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: isDarkMode ? darkColors.background : '#ffffff' }]}>
-      {/* Change the status bar color and style */}
       <StatusBar 
-        style={isDarkMode ? "light" : "dark"} // Adust text color based on dark/light mode
-        backgroundColor={isDarkMode ? darkColors.background : "#ffffff"} // Set background color based on dark/light mode
+        style={isDarkMode ? "light" : "dark"}
+        backgroundColor={isDarkMode ? darkColors.background : "#ffffff"}
       />
-
-      {/* Stack navigation without headers */}
+      <Text style={{ fontFamily: FontStyles.regular, fontSize: 18, color: isDarkMode ? darkColors.text : "#000" }}>
+        This text uses the regular font.
+      </Text>
       <Stack
         screenOptions={{
-          headerShown: false, // Ensures headers are not displayed
+          headerShown: false,
         }}
       />
     </View>
@@ -47,6 +48,6 @@ export default function RootLayout() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,  // Ensures it fills the whole screen
+    flex: 1,
   },
 });

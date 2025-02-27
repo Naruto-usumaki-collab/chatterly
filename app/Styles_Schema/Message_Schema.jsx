@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import FontStyles from "../../constants/fonts";
 
 const styles = StyleSheet.create({
   container: {
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Use bold font
     color: "#1E90FF",
   },
   headerIcons: {
@@ -38,6 +39,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: "#E0E0E0",
     fontSize: 16,
+    fontFamily: FontStyles.regular, // Use regular font
   },
   conversationContainer: {
     padding: 15,
@@ -65,11 +67,12 @@ const styles = StyleSheet.create({
   },
   chatName: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Use bold font
     color: "#fff",
   },
   chatTime: {
     fontSize: 12,
+    fontFamily: FontStyles.light, // Use light font
     color: "#888",
   },
   chatFooter: {
@@ -80,6 +83,7 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
+    fontFamily: FontStyles.regular, // Use regular font
     color: "#ccc",
     flex: 1,
   },
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
   unreadCount: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: FontStyles.bold, // Use bold font
   },
   profileModal: {
     flex: 1,
