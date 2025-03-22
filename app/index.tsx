@@ -16,7 +16,7 @@ export default function Index() {
       if (userLoggedIn) {
         router.replace("../chatting");
       } else {
-        router.replace("/login/backup");
+        router.replace("/login/username");
       }
     }, 2000); // Simulate a delay for loading
   }, []);

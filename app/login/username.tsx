@@ -1,142 +1,119 @@
-import colors from '@/constants/color';
-import React, { useState } from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Linking,
-  ScrollView,
-  RefreshControl,
-} from 'react-native';
+import React from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
-export default function PaymentPage() {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [amount, setAmount] = useState<number>(0);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-
-  const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
-    if (option === 'Low') setAmount(1);
-    if (option === 'Normal') setAmount(100);
-    if (option === 'Advance') setAmount(200);
-  };
-
-  const handlePayment = () => {
-    if (!selectedOption) {
-      Alert.alert('Error', 'Please select an amount option.');
-      return;
-    }
-
-    const upiUrl = `upi://pay?pa=mabirami533@oksbi&pn=Shiva%20Siva&am=${amount}&cu=INR`;
-    Linking.openURL(upiUrl)
-      .then(() => console.log('Redirected to GPay'))
-      .catch(() => {
-        Alert.alert(
-          'Error',
-          'Unable to open Google Pay. Please ensure you have a UPI app installed.'
-        );
-      });
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    // Simulate a network request or refresh logic
-    setTimeout(() => {
-      setSelectedOption(null);
-      setAmount(0);
-      setRefreshing(false);
-    }, 1000); // Refresh complete after 1 second
-  };
-
+const UsernameLogin = () => {
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+    <LinearGradient
+      colors={["#4A0D66", "#C92A2A"]}
+      start={{ x: 0.95, y: 0.05 }} // 135-degree angle
+      end={{ x: 0.05, y: 0.95 }}
+      style={styles.container}
     >
-      <Text style={styles.title}>Payment Page</Text>
-      <Text style={styles.subtitle}>Select your plan:</Text>
+      <View style={styles.content}>
+        <Text style={styles.appTitle}>Chatterly</Text>
 
-      {/* Options */}
-      <View style={styles.optionsContainer}>
-        {['Low', 'Normal', 'Advance'].map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              selectedOption === option && styles.selectedOptionButton,
-            ]}
-            onPress={() => handleOptionSelect(option)}
-          >
-            <Text style={styles.optionText}>
-              {option} {option === 'Low' ? '(₹10)' : option === 'Normal' ? '(₹100)' : '(₹200)'}
-            </Text>
+        <BlurView intensity={50} style={styles.loginBox}>
+          <Text style={styles.title}>Login</Text>
+
+          <TextInput
+            placeholder="Username, email or mobile number"
+            placeholderTextColor="#ddd"
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#ddd"
+            secureTextEntry
+            style={styles.input}
+          />
+
+          <TouchableOpacity style={styles.loginButton}>
+            <Text style={styles.buttonText}>L o g  i n</Text>
           </TouchableOpacity>
-        ))}
-      </View>
 
-      {/* Payment */}
-      <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
-        <Text style={styles.paymentButtonText}>Proceed to Pay with GPay</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <Text style={styles.signUpText}>
+            Do you not have an account? <Text style={styles.boldText}>Sign in</Text>
+          </Text>
+          <Text style={styles.forgotPassword}>Forgot password?</Text>
+        </BlurView>
+      </View>
+    </LinearGradient>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#121212',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    width: "85%",
+    alignItems: "center",
+  },
+  appTitle: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  loginBox: {
+    width: "100%",
     padding: 20,
+    borderRadius: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    alignItems: "center",
   },
   title: {
-    fontSize: 30,
-    color: colors.primary,
-    textAlign: 'center',
-    fontFamily: 'bold',
-    marginBottom: 20,
-  },
-  subtitle: {
     fontSize: 18,
-    color: '#fff',
-    marginBottom: 10,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 15,
+    letterSpacing: 1,
   },
-  optionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 20,
+  input: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    color: "#fff",
+    marginBottom: 15,
   },
-  optionButton: {
-    backgroundColor: '#333',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: '30%',
+  loginButton: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginTop: 10,
   },
-  selectedOptionButton: {
-    backgroundColor: colors.primary,
-  },
-  optionText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  paymentButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  paymentButtonText: {
-    color: '#fff',
+  buttonText: {
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    letterSpacing: 2,
+  },
+  signUpText: {
+    color: "#bbb",
+    textAlign: "center",
+    marginTop: 15,
+  },
+  boldText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  forgotPassword: {
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "bold",
   },
 });
+
+export default UsernameLogin;
