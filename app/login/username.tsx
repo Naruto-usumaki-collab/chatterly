@@ -6,7 +6,7 @@ import { BlurView } from "expo-blur";
 const UsernameLogin = () => {
   return (
     <LinearGradient
-      colors={["#4A0D66", "#C92A2A"]}
+      colors={["#b876db", "#6c149c"]}
       start={{ x: 0.95, y: 0.05 }} // 135-degree angle
       end={{ x: 0.05, y: 0.95 }}
       style={styles.container}

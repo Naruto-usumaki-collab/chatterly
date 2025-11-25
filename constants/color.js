@@ -7,4 +7,11 @@ const colors = {
   secondary:"#7C3AED",
 };
 
+const darkColors = {
+  background: "#121212",
+  text: "#EAEAEA",
+  primary: "#BB86FC",
+  accent: "#03DAC6",
+};
+
 export default colors;
